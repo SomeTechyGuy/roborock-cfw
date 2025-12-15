@@ -1,5 +1,5 @@
 {
-  "name": "valetudo",
+  "name": "roborock-cfw",
   "version": "2025.12.0",
   "description": "Self-contained control webinterface for vacuum robots",
   "license": "Apache-2.0",
