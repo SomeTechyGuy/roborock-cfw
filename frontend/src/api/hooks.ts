@@ -135,6 +135,10 @@ import {
     sendMopTwistControlState,
     fetchMopDockMopAutoDryingControlState,
     sendMopDockMopAutoDryingControlState,
+    fetchMapSegmentMaterialControlProperties,
+    sendSetSegmentMaterialCommand,
+    fetchFloorMaterialDirectionAwareNavigationControlState,
+    sendFloorMaterialDirectionAwareNavigationControlState,
 } from "./client";
 import {
     PresetSelectionState,
@@ -156,6 +160,7 @@ import {
     MapSegmentationActionRequestParameters,
     MapSegmentEditJoinRequestParameters,
     MapSegmentEditSplitRequestParameters,
+    MapSegmentMaterialControlRequestParameters,
     MapSegmentRenameRequestParameters,
     MopDockMopWashTemperature,
     MQTTConfiguration,
@@ -241,6 +246,8 @@ enum QueryKey {
     MopTwistControl = "mop_twist_control",
     MopExtensionFurnitureLegHandlingControl = "mop_extension_furniture_leg_handling_control",
     MopDockMopAutoDryingControl = "mop_dock_mop_auto_drying_control",
+    MapSegmentMaterialControlProperties = "map_segment_material_control_properties",
+    FloorMaterialDirectionAwareNavigationControl = "floor_material_direction_aware_navigation_control",
 }
 
 const useOnCommandError = (capability: Capability | string): ((error: unknown) => void) => {
@@ -589,6 +596,36 @@ export const useRenameSegmentMutation = (
         ...options,
 
         onError: useOnCommandError(Capability.MapSegmentRename),
+        onSuccess: async (data, ...args) => {
+            queryClient.setQueryData<RobotAttribute[]>([QueryKey.Attributes], data, {
+                updatedAt: Date.now(),
+            });
+            await options?.onSuccess?.(data, ...args);
+        },
+    });
+};
+
+export const useMapSegmentMaterialControlPropertiesQuery = () => {
+    return useQuery( {
+        queryKey: [QueryKey.MapSegmentMaterialControlProperties],
+        queryFn: fetchMapSegmentMaterialControlProperties,
+
+        staleTime: Infinity,
+    });
+};
+
+export const useSetSegmentMaterialMutation = (
+    options?: UseMutationOptions<RobotAttribute[], unknown, MapSegmentMaterialControlRequestParameters>
+) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (parameters: MapSegmentMaterialControlRequestParameters) => {
+            return sendSetSegmentMaterialCommand(parameters).then(fetchStateAttributes); //TODO: this should actually refetch the map
+        },
+        ...options,
+
+        onError: useOnCommandError(Capability.MapSegmentMaterialControl),
         onSuccess: async (data, ...args) => {
             queryClient.setQueryData<RobotAttribute[]>([QueryKey.Attributes], data, {
                 updatedAt: Date.now(),
@@ -1667,5 +1704,24 @@ export const useMopDockMopAutoDryingControlMutation = () => {
             return sendMopDockMopAutoDryingControlState(enable).then(fetchMopDockMopAutoDryingControlState);
         },
         onError: useOnCommandError(Capability.MopDockMopAutoDryingControl)
+    });
+};
+
+export const useFloorMaterialDirectionAwareNavigationControlQuery = () => {
+    return useQuery( {
+        queryKey: [QueryKey.FloorMaterialDirectionAwareNavigationControl],
+        queryFn: fetchFloorMaterialDirectionAwareNavigationControlState,
+
+        staleTime: Infinity
+    });
+};
+
+export const useFloorMaterialDirectionAwareNavigationControlMutation = () => {
+    return useValetudoFetchingMutation({
+        queryKey: [QueryKey.FloorMaterialDirectionAwareNavigationControl],
+        mutationFn: (enable: boolean) => {
+            return sendFloorMaterialDirectionAwareNavigationControlState(enable).then(fetchFloorMaterialDirectionAwareNavigationControlState);
+        },
+        onError: useOnCommandError(Capability.FloorMaterialDirectionAwareNavigationControl)
     });
 };

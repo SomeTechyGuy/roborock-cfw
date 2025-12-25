@@ -638,7 +638,7 @@ class DreameQuirkFactory {
                 return new Quirk({
                     id: id,
                     title: "Edge Extension: Side Brush",
-                    description: "Automatically extend the side brush to further reach into corners or below furniture",
+                    description: "Automatically extend the side brush to further reach into corners or below furniture.",
                     options: ["on", "off"],
                     getter: async () => {
                         const res = await this.helper.readProperty(
@@ -683,7 +683,7 @@ class DreameQuirkFactory {
                 return new Quirk({
                     id: id,
                     title: "Detach Mops",
-                    description: "When enabled, the robot will leave the mop pads in the dock when running a vacuum-only cleanup",
+                    description: "When enabled, the robot will leave the mop pads in the dock when running a vacuum-only cleanup.",
                     options: ["on", "off"],
                     getter: async () => {
                         const res = await this.helper.readProperty(

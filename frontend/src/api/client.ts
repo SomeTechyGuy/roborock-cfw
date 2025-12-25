@@ -24,6 +24,8 @@ import {
     MapSegmentationProperties,
     MapSegmentEditJoinRequestParameters,
     MapSegmentEditSplitRequestParameters,
+    MapSegmentMaterialControlProperties,
+    MapSegmentMaterialControlRequestParameters,
     MapSegmentRenameRequestParameters,
     MopDockMopWashTemperature,
     MopDockMopWashTemperaturePayload,
@@ -358,6 +360,30 @@ export const sendRenameSegmentCommand = async (
             name: parameters.name
         }
     );
+};
+
+export const sendSetSegmentMaterialCommand = async (parameters: MapSegmentMaterialControlRequestParameters): Promise<void> => {
+    return valetudoAPI
+        .put(`/robot/capabilities/${Capability.MapSegmentMaterialControl}`, {
+            action: "set_material",
+            segment_id: parameters.segment_id,
+            material: parameters.material
+        })
+        .then(({status}) => {
+            if (status !== 200) {
+                throw new Error("Could not set segment material");
+            }
+        });
+};
+
+export const fetchMapSegmentMaterialControlProperties = async (): Promise<MapSegmentMaterialControlProperties> => {
+    return valetudoAPI
+        .get<MapSegmentMaterialControlProperties>(
+            `/robot/capabilities/${Capability.MapSegmentMaterialControl}/properties`
+        )
+        .then(({data}) => {
+            return data;
+        });
 };
 
 export const sendLocateCommand = async (): Promise<void> => {
@@ -1240,3 +1266,16 @@ export const fetchMopDockMopAutoDryingControlState = async (): Promise<SimpleTog
 export const sendMopDockMopAutoDryingControlState = async (enable: boolean): Promise<void> => {
     await sendToggleMutation(Capability.MopDockMopAutoDryingControl, enable);
 };
+
+export const fetchFloorMaterialDirectionAwareNavigationControlState = async (): Promise<SimpleToggleState> => {
+    return valetudoAPI
+        .get<SimpleToggleState>(`/robot/capabilities/${Capability.FloorMaterialDirectionAwareNavigationControl}`)
+        .then(({ data }) => {
+            return data;
+        });
+};
+
+export const sendFloorMaterialDirectionAwareNavigationControlState = async (enable: boolean): Promise<void> => {
+    await sendToggleMutation(Capability.FloorMaterialDirectionAwareNavigationControl, enable);
+};
+
